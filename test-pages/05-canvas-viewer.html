@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Page 05 - Canvas Document Viewer</title>
+</head>
+<body>
+  <h1>Canvas Viewer Test</h1>
+  <canvas id="docCanvas" width="500" height="600" style="border:1px solid #000;"></canvas>
+  <script>
+    const c = document.getElementById('docCanvas');
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, 500, 600);
+    ctx.fillStyle = '#000000';
+    ctx.font = '20px serif';
+    ctx.fillText('Canvas Rendered Document Page 1', 30, 50);
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Page 02 - Right Click & Copy Disabled</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; user-select: none; -webkit-user-select: none; }
+  </style>
+  <script>
+    document.addEventListener('contextmenu', function(e) { e.preventDefault(); alert('Right click disabled!'); });
+    document.addEventListener('selectstart', function(e) { e.preventDefault(); });
+    document.addEventListener('copy', function(e) { e.preventDefault(); alert('Copying disabled!'); });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'F12' || (e.ctrlKey && (e.key === 'u' || e.key === 's'))) {
+        e.preventDefault();
+        alert('Shortcut blocked!');
+      }
+    });
+  </script>
+</head>
+<body>
+  <h1>Right-Click & Copy Blocked Page</h1>
+  <p>This page blocks right click, context menu, text selection, copy event, and inspect shortcuts (F12, Ctrl+U, Ctrl+S).</p>
+  <img src="https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=300" alt="Protected Artwork">
+</body>
+</html>
