@@ -1,0 +1,13 @@
+node_modules/ 
+dist/ 
+*.zip 
+*.log 
+*.tmp 
+*.cache 
+.vscode/ 
+.DS_Store 
+Thumbs.db 
+background.js 
+content.js 
+mainWorld.js 
+public/icons/*

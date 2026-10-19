@@ -1,7 +1,11 @@
 import { defineConfig, build } from 'vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
-import { copyFileSync, mkdirSync, existsSync } from 'fs';
+import { copyFileSync, mkdirSync, existsSync } from 'node:fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Custom plugin to compile content scripts into self-contained IIFE bundles without ESM imports
 function buildContentScriptsPlugin() {
@@ -11,6 +15,7 @@ function buildContentScriptsPlugin() {
       // Build content script as IIFE
       await build({
         configFile: false,
+        plugins: [],
         resolve: {
           alias: { '@': resolve(__dirname, 'src') },
         },
@@ -27,6 +32,7 @@ function buildContentScriptsPlugin() {
             output: {
               extend: true,
             },
+
           },
         },
       });
@@ -34,6 +40,7 @@ function buildContentScriptsPlugin() {
       // Build mainWorld script as IIFE
       await build({
         configFile: false,
+        plugins: [],
         resolve: {
           alias: { '@': resolve(__dirname, 'src') },
         },
@@ -50,6 +57,7 @@ function buildContentScriptsPlugin() {
             output: {
               extend: true,
             },
+            external: ['fs'],
           },
         },
       });
@@ -84,12 +92,15 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     rollupOptions: {
+      external: ['fs'],
+      external: ['fs'],
       input: {
         popup: resolve(__dirname, 'src/popup/index.html'),
         options: resolve(__dirname, 'src/options/index.html'),
         offscreen: resolve(__dirname, 'src/offscreen/offscreen.html'),
         background: resolve(__dirname, 'src/background/index.ts'),
       },
+    },
       output: {
         entryFileNames: (chunkInfo) => {
           if (chunkInfo.name === 'background') return 'background.js';
