@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Page 07 - DRM/EME Media</title>
+</head>
+<body>
+  <h1>Encrypted Media Test Page</h1>
+  <video id="drmVideo" controls></video>
+  <script>
+    if (navigator.requestMediaKeySystemAccess) {
+      navigator.requestMediaKeySystemAccess('org.w3.clearkey', [{
+        initDataTypes: ['cenc'],
+        videoCapabilities: [{ contentType: 'video/mp4; codecs="avc1.42E01E"' }]
+      }]).catch(() => {});
+    }
+  </script>
+</body>
+</html>

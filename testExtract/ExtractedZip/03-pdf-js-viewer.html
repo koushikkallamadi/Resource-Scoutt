@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Page 03 - PDF.js Viewer Simulation</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .pdf-viewer { border: 2px solid #333; padding: 15px; background: #525659; color: white; border-radius: 8px; }
+    .pdf-canvas { background: white; border: 1px solid #ccc; display: block; margin: 10px auto; width: 400px; height: 500px; }
+  </style>
+</head>
+<body>
+  <h1>Custom PDF.js Viewer Simulation</h1>
+  <div class="pdf-viewer" id="viewerContainer">
+    <h2>Document Previewer</h2>
+    <canvas class="pdf-canvas" id="pdfCanvas1"></canvas>
+  </div>
+  <script>
+    const canvas = document.getElementById('pdfCanvas1');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 400;
+    canvas.height = 500;
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillRect(0, 0, 400, 500);
+    ctx.fillStyle = '#0f172a';
+    ctx.font = '18px sans-serif';
+    ctx.fillText('PDF Page 1 Rendered via Canvas', 40, 50);
+    ctx.font = '14px sans-serif';
+    ctx.fillText('ResourceScout should detect PDF.js / canvas viewer', 40, 90);
+  </script>
+</body>
+</html>

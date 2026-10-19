@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Page 04 - Lazy Load Gallery</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .lazy-img { width: 100%; height: 200px; background: #e2e8f0; object-fit: cover; }
+  </style>
+</head>
+<body>
+  <h1>Lazy-Loaded Gallery</h1>
+  <div class="gallery">
+    <img class="lazy-img" data-src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400" alt="Landscape 1">
+    <img class="lazy-img" data-original="https://images.unsplash.com/photo-1511884642898-4c92249e20b6?w=400" alt="Landscape 2">
+  </div>
+</body>
+</html>

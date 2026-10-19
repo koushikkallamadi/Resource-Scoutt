@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Page 08 - Overlay Divs & Pointer Events</title>
+  <style>
+    .img-wrapper { position: relative; display: inline-block; }
+    .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0); z-index: 10; }
+    .no-pointer { pointer-events: none; }
+  </style>
+</head>
+<body>
+  <h1>Overlay Div Protection</h1>
+  <div class="img-wrapper">
+    <img src="https://images.unsplash.com/photo-1579783902614-a3fb3927b675?w=300" class="no-pointer">
+    <div class="overlay"></div>
+  </div>
+</body>
+</html>

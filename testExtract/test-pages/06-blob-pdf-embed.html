@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Page 06 - Blob PDF Embed</title>
+</head>
+<body>
+  <h1>Blob PDF Embed</h1>
+  <iframe id="pdfFrame" width="100%" height="400px"></iframe>
+  <script>
+    const pdfData = '%PDF-1.4 %... sample dummy pdf string';
+    const blob = new Blob([pdfData], { type: 'application/pdf' });
+    const blobUrl = URL.createObjectURL(blob);
+    document.getElementById('pdfFrame').src = blobUrl;
+  </script>
+</body>
+</html>
