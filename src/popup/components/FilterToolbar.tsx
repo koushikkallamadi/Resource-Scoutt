@@ -11,6 +11,7 @@ interface Props {
   onToggleSelectAll: () => void;
   totalCount: number;
   filteredCount: number;
+  categoryCounts?: Record<string, number>;
 }
 
 export const FilterToolbar: React.FC<Props> = ({
@@ -22,6 +23,7 @@ export const FilterToolbar: React.FC<Props> = ({
   onToggleSelectAll,
   totalCount,
   filteredCount,
+  categoryCounts,
 }) => {
   const categories: { type: ResourceType | 'all'; label: string; icon: React.ReactNode }[] = [
     { type: 'all', label: 'All', icon: null },
@@ -35,20 +37,30 @@ export const FilterToolbar: React.FC<Props> = ({
     <div className="space-y-2 py-1">
       {/* Category Pills */}
       <div className="flex items-center gap-1 overflow-x-auto pb-1 no-scrollbar text-xs">
-        {categories.map((cat) => (
-          <button
-            key={cat.type}
-            onClick={() => onSelectType(cat.type)}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[11px] font-medium whitespace-nowrap transition-all ${
-              selectedType === cat.type
-                ? 'bg-brand-600 text-white border-brand-500 shadow-sm'
-                : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200 hover:bg-slate-800'
-            }`}
-          >
-            {cat.icon}
-            <span>{cat.label}</span>
-          </button>
-        ))}
+        {categories.map((cat) => {
+          const count = categoryCounts ? categoryCounts[cat.type] : undefined;
+          return (
+            <button
+              key={cat.type}
+              onClick={() => onSelectType(cat.type)}
+              className={`flex items-center gap-1 px-2.5 py-1 rounded-lg border text-[11px] font-medium whitespace-nowrap transition-all ${
+                selectedType === cat.type
+                  ? 'bg-brand-600 text-white border-brand-500 shadow-sm'
+                  : 'bg-slate-900/60 text-slate-400 border-slate-800 hover:text-slate-200 hover:bg-slate-800'
+              }`}
+            >
+              {cat.icon}
+              <span>{cat.label}</span>
+              {count !== undefined && (
+                <span className={`text-[10px] px-1 py-0.2 rounded-full ${
+                  selectedType === cat.type ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'
+                }`}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Search Input & Select All Row */}

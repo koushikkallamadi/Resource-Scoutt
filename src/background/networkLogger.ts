@@ -1,5 +1,6 @@
 import { DiscoveredResource } from '../shared/types';
 import { normalizeUrl } from '../shared/deduplication';
+import { detectResourceType } from '../shared/classifier';
 
 // Map of tabId -> Map of normalized resource URL -> DiscoveredResource
 const tabNetworkLogs = new Map<number, Map<string, DiscoveredResource>>();
@@ -27,30 +28,17 @@ export function setupNetworkLogger() {
       let resourceType: DiscoveredResource['type'] | null = null;
       let isHls = false;
 
-      if (mimeType.includes('application/pdf')) {
-        resourceType = 'pdf';
-      } else if (mimeType.startsWith('image/')) {
-        resourceType = 'image';
-      } else if (
+      if (
         mimeType.includes('application/x-mpegurl') ||
         mimeType.includes('application/vnd.apple.mpegurl') ||
-        mimeType.includes('application/x-mpegURL') ||
         details.url.toLowerCase().includes('.m3u8')
       ) {
-        // HLS playlist detected
         resourceType = 'media';
         isHls = true;
-      } else if (mimeType.startsWith('video/') || mimeType.startsWith('audio/')) {
-        resourceType = 'media';
-      } else if (mimeType.includes('font/')) {
-        resourceType = 'font';
-      }
-
-      // Also catch direct video/audio file URLs by extension (sometimes MIME is octet-stream)
-      if (!resourceType) {
-        const urlLower = details.url.toLowerCase().split('?')[0];
-        if (/\.(mp4|webm|mkv|mov|avi|m4v|ogv|ogg|mp3|wav|flac|aac)$/.test(urlLower)) {
-          resourceType = 'media';
+      } else {
+        const detected = detectResourceType(details.url, mimeType);
+        if (detected !== 'other') {
+          resourceType = detected;
         }
       }
 

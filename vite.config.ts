@@ -32,7 +32,6 @@ function buildContentScriptsPlugin() {
             output: {
               extend: true,
             },
-
           },
         },
       });
@@ -93,14 +92,12 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       external: ['fs'],
-      external: ['fs'],
       input: {
         popup: resolve(__dirname, 'src/popup/index.html'),
         options: resolve(__dirname, 'src/options/index.html'),
         offscreen: resolve(__dirname, 'src/offscreen/offscreen.html'),
         background: resolve(__dirname, 'src/background/index.ts'),
       },
-    },
       output: {
         entryFileNames: (chunkInfo) => {
           if (chunkInfo.name === 'background') return 'background.js';
@@ -110,9 +107,5 @@ export default defineConfig({
         assetFileNames: 'assets/[name]-[hash].[ext]',
       },
     },
-  },
-  test: {
-    globals: true,
-    environment: 'jsdom',
   },
 });

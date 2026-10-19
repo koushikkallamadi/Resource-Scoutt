@@ -82,7 +82,7 @@ export default function App() {
         target: { tabId },
         files: ['mainWorld.js'],
         world: 'MAIN' as any,
-      }).catch(() => {});
+      }).catch(() => { });
 
       // 2. Inject content script into ISOLATED world
       await chrome.scripting.executeScript({
@@ -125,6 +125,22 @@ export default function App() {
       (res.title && res.title.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesType && matchesSearch;
   });
+
+  const categoryCounts = React.useMemo(() => {
+    const counts: Record<string, number> = {
+      all: resources.length,
+      pdf: 0,
+      image: 0,
+      canvas: 0,
+      media: 0,
+    };
+    for (const r of resources) {
+      if (counts[r.type] !== undefined) {
+        counts[r.type]++;
+      }
+    }
+    return counts;
+  }, [resources]);
 
   const allSelected =
     filteredResources.length > 0 && filteredResources.every((r) => selectedIds.has(r.id));
@@ -246,6 +262,7 @@ export default function App() {
           onToggleSelectAll={toggleSelectAll}
           totalCount={resources.length}
           filteredCount={filteredResources.length}
+          categoryCounts={categoryCounts}
         />
 
         {/* Resource Thumbnails Grid */}

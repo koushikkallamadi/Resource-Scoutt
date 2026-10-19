@@ -1,5 +1,6 @@
 import { DiscoveredResource } from '../shared/types';
 import { tryExportCanvas } from './canvasExporter';
+import { detectResourceType } from '../shared/classifier';
 
 export function scanDOMResources(): DiscoveredResource[] {
   const resources: DiscoveredResource[] = [];
@@ -32,6 +33,7 @@ export function scanDOMResources(): DiscoveredResource[] {
     const imgs = root.querySelectorAll('img');
     imgs.forEach((img) => {
       const src =
+        img.currentSrc ||
         img.src ||
         img.getAttribute('data-src') ||
         img.getAttribute('data-original') ||
@@ -52,19 +54,30 @@ export function scanDOMResources(): DiscoveredResource[] {
     });
 
     // 2. <picture> & <source> & responsive srcset
-    const sources = root.querySelectorAll('picture source, video source, img[srcset]');
+    const sources = root.querySelectorAll('picture source, video source, audio source, img[srcset]');
     sources.forEach((s) => {
       const srcset = s.getAttribute('srcset') || s.getAttribute('src');
       if (srcset) {
-        // Parse highest resolution URL from srcset string
         const candidates = srcset.split(',').map((part) => part.trim().split(' ')[0]);
         const highestResUrl = candidates[candidates.length - 1];
-        const isMedia = s.parentElement?.tagName.toLowerCase() === 'video';
+        const isMedia = s.parentElement?.tagName.toLowerCase() === 'video' || s.parentElement?.tagName.toLowerCase() === 'audio';
         addResource(highestResUrl, isMedia ? 'media' : 'image', 'dom');
       }
     });
 
-    // 3. SVG <image> and <use> elements (common in document vector preview viewers)
+    // 3. Direct <video> & <audio> elements
+    const mediaElements = root.querySelectorAll('video, audio');
+    mediaElements.forEach((m) => {
+      const el = m as HTMLMediaElement;
+      const src = el.currentSrc || el.getAttribute('src');
+      if (src) {
+        addResource(src, 'media', 'dom', {
+          title: el.getAttribute('title') || el.getAttribute('aria-label') || 'Media Resource',
+        });
+      }
+    });
+
+    // 4. SVG <image> and <use> elements
     const svgImages = root.querySelectorAll('svg image, image[*|href]');
     svgImages.forEach((img) => {
       const href = img.getAttribute('href') || img.getAttribute('xlink:href') || img.getAttribute('data-src');
@@ -73,7 +86,7 @@ export function scanDOMResources(): DiscoveredResource[] {
       }
     });
 
-    // 4. Anchor tags ending with .pdf, .docx, .zip, etc.
+    // 5. Anchor tags (strictly classified via detectResourceType)
     const links = root.querySelectorAll('a[href]');
     links.forEach((a) => {
       const href = a.getAttribute('href');
@@ -81,31 +94,30 @@ export function scanDOMResources(): DiscoveredResource[] {
       const typeAttr = a.getAttribute('type') || '';
       
       if (href) {
-        const isPdf = 
-          href.toLowerCase().includes('.pdf') || 
-          href.startsWith('blob:') || 
-          downloadAttr.toLowerCase().includes('.pdf') ||
-          typeAttr.toLowerCase() === 'application/pdf';
-
-        if (isPdf) {
-          addResource(href, 'pdf', 'dom', { title: a.textContent?.trim() || 'PDF Document' });
-        } else if (/\.(docx?|xlsx?|pptx?|zip|rar|tar\.gz)$/i.test(href) || /\.(docx?|xlsx?|pptx?|zip|rar|tar\.gz)$/i.test(downloadAttr)) {
-          addResource(href, 'document', 'dom', { title: a.textContent?.trim() || 'Document File' });
+        const detectedType = detectResourceType(href, undefined, downloadAttr, typeAttr);
+        if (detectedType !== 'other') {
+          addResource(href, detectedType, 'dom', {
+            title: a.textContent?.trim() || a.getAttribute('title') || `${detectedType.toUpperCase()} Resource`,
+          });
         }
       }
     });
 
-    // 5. Embeds & IFrames & Objects (PDF viewers & blob streams)
+    // 6. Embeds & IFrames & Objects
     const embeds = root.querySelectorAll('embed[src], object[data], iframe[src]');
     embeds.forEach((el) => {
       const src = el.getAttribute('src') || el.getAttribute('data');
       if (src) {
-        const isPdf = src.toLowerCase().includes('.pdf') || src.startsWith('blob:');
-        addResource(src, isPdf ? 'pdf' : 'document', 'iframe');
+        const detectedType = detectResourceType(src);
+        if (detectedType !== 'other') {
+          addResource(src, detectedType, 'iframe', {
+            title: el.getAttribute('title') || undefined,
+          });
+        }
       }
     });
 
-    // 6. Canvas elements (e.g. PDF.js canvas pages & document canvas renderers)
+    // 7. Canvas elements
     const canvases = root.querySelectorAll('canvas');
     canvases.forEach((c, index) => {
       const exportResult = tryExportCanvas(c);
@@ -123,7 +135,7 @@ export function scanDOMResources(): DiscoveredResource[] {
       }
     });
 
-    // 7. CSS Background images (e.g. div-based page background rendering)
+    // 8. CSS Background images
     const allElements = root.querySelectorAll('*');
     allElements.forEach((el) => {
       if (el.shadowRoot) {
@@ -133,7 +145,7 @@ export function scanDOMResources(): DiscoveredResource[] {
       const bg = window.getComputedStyle(el).backgroundImage;
       if (bg && bg !== 'none' && bg.includes('url(')) {
         const match = bg.match(/url\((['"]?)(.*?)\1\)/);
-        if (match && match[2]) {
+        if (match && match[2] && !match[2].startsWith('data:')) {
           addResource(match[2], 'image', 'dom');
         }
       }
@@ -142,9 +154,9 @@ export function scanDOMResources(): DiscoveredResource[] {
 
   scanRoot(document);
 
-  // 8. Check if the page itself is a direct PDF link
+  // 9. Check if current document itself is a direct PDF document
   if (
-    window.location.href.toLowerCase().includes('.pdf') || 
+    window.location.pathname.toLowerCase().endsWith('.pdf') || 
     document.contentType === 'application/pdf'
   ) {
     addResource(window.location.href, 'pdf', 'dom', { title: document.title || 'Current PDF Document' });

@@ -3,6 +3,7 @@ import { detectPageRestrictions } from './restrictionDetector';
 import { fetchBlobAsDataUrl } from './blobFetcher';
 import { deduplicateResources } from '../shared/deduplication';
 import { DiscoveredResource } from '../shared/types';
+import { detectResourceType } from '../shared/classifier';
 
 console.log('[ResourceScout] Isolated Content Script Loaded');
 
@@ -28,6 +29,10 @@ async function handleScanPage() {
       const dataUrl = await fetchBlobAsDataUrl(res.url);
       if (dataUrl) {
         res.dataUrl = dataUrl;
+        const refined = detectResourceType(dataUrl);
+        if (refined !== 'other') {
+          res.type = refined;
+        }
       }
     }
   }

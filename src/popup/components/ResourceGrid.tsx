@@ -1,6 +1,6 @@
 import React from 'react';
 import { DiscoveredResource } from '../../shared/types';
-import { FileText, Download, CheckCircle2, Circle, Eye, ExternalLink, Lock } from 'lucide-react';
+import { FileText, Download, CheckCircle2, Circle, Eye, ExternalLink, Lock, Film } from 'lucide-react';
 
 interface Props {
   resources: DiscoveredResource[];
@@ -65,6 +65,13 @@ export const ResourceGrid: React.FC<Props> = ({
                   <FileText className="w-8 h-8 text-rose-400 mb-1" />
                   <span className="text-[10px] text-slate-300 line-clamp-1 break-all font-medium">
                     {res.title || 'PDF Document'}
+                  </span>
+                </div>
+              ) : res.type === 'media' ? (
+                <div className="flex flex-col items-center justify-center p-2 text-center">
+                  <Film className="w-8 h-8 text-indigo-400 mb-1" />
+                  <span className="text-[10px] text-slate-300 line-clamp-1 break-all font-medium">
+                    {res.title || (res.isHls ? 'HLS Video Stream' : 'Media / Video')}
                   </span>
                 </div>
               ) : res.url.startsWith('data:') || res.url.startsWith('http') || res.dataUrl ? (
